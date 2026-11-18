@@ -12,6 +12,7 @@ export interface SmartListDefinition {
 export interface MyDaySubtask {
   goal: Goal;
   subtask: Subtask;
+  path: string[];
 }
 
 export const SMART_LISTS: SmartListDefinition[] = [
@@ -39,7 +40,7 @@ export function filterBySmartList(goals: Goal[], key: SmartListKey, today: strin
 export function getMyDaySubtasks(goals: Goal[], today: string): MyDaySubtask[] {
   return goals
     .filter(goal => !goal.completed)
-    .flatMap(goal => collectMyDay(goal, goal.subtasks, today));
+    .flatMap(goal => collectMyDay(goal, goal.subtasks, today, [goal.title]));
 }
 
 export function countSmartList(goals: Goal[], key: SmartListKey, today: string): number {
@@ -51,11 +52,11 @@ export function countSmartList(goals: Goal[], key: SmartListKey, today: string):
   return goalCount + pendingSubtasks.length;
 }
 
-function collectMyDay(goal: Goal, subtasks: Subtask[], today: string): MyDaySubtask[] {
+function collectMyDay(goal: Goal, subtasks: Subtask[], today: string, path: string[]): MyDaySubtask[] {
   return subtasks.flatMap(subtask => [
     ...(subtask.myDayDate === today && (subtask.myDayDoneDate === today || !isSubtaskDone(subtask))
-      ? [{ goal, subtask }]
+      ? [{ goal, subtask, path }]
       : []),
-    ...collectMyDay(goal, subtask.subtasks, today)
+    ...collectMyDay(goal, subtask.subtasks, today, [...path, subtask.title])
   ]);
 }

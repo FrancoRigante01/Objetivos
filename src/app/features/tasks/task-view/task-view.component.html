@@ -136,7 +136,7 @@
             />
             <div class="min-w-0 flex-1">
               <p class="font-medium" [class.line-through]="isDoneToday(entry.subtask)" [class.text-slate-400]="isDoneToday(entry.subtask)">{{ entry.subtask.title }}</p>
-              <p class="mt-0.5 text-xs text-slate-500">{{ entry.goal.title }}</p>
+              <p class="mt-0.5 break-words text-xs text-slate-500">{{ entry.path.join(' › ') }}</p>
             </div>
             <button
               type="button"

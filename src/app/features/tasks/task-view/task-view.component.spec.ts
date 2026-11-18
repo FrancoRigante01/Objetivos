@@ -167,6 +167,20 @@ describe('TaskViewComponent', () => {
     expect(fixture.componentInstance['pendingCount']()).toBe(2);
   });
 
+  it('muestra la rama completa de una subtarea anidada en "Mi día"', () => {
+    const store = TestBed.inject(GoalStore);
+    store.addSubtask('g2', 'Aumento de sueldo');
+    const parentId = store.goals().find(goal => goal.id === 'g2')?.subtasks[0].id ?? '';
+    store.addSubtask('g2', 'Preparar negociación', parentId);
+    const childId = store.goals().find(goal => goal.id === 'g2')?.subtasks[0].subtasks[0].id ?? '';
+    store.toggleSubtaskMyDay('g2', childId);
+
+    fixture.componentRef.setInput('smartList', 'myDay');
+    fixture.detectChanges();
+
+    expect(element.textContent).toContain('Del trabajo › Aumento de sueldo');
+  });
+
   it('marcar una subtarea en "Mi día" no la completa en la lista del objetivo', () => {
     const store = TestBed.inject(GoalStore);
     store.addSubtask('g2', 'Hacer ejercicio');
