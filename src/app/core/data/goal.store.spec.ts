@@ -1,0 +1,169 @@
+import { TestBed } from '@angular/core/testing';
+
+import { InMemoryGoalRepository } from '../../testing/in-memory-goal.repository';
+import { GoalRepository } from './goal.repository';
+import { GoalStore } from './goal.store';
+
+describe('GoalStore', () => {
+  let repository: InMemoryGoalRepository;
+  let store: GoalStore;
+
+  beforeEach(() => {
+    repository = new InMemoryGoalRepository();
+    TestBed.configureTestingModule({
+      providers: [{ provide: GoalRepository, useValue: repository }]
+    });
+    store = TestBed.inject(GoalStore);
+  });
+
+  it('crea una lista por defecto cuando no hay datos', () => {
+    expect(store.lists().map(list => list.name)).toEqual(['Personal']);
+    expect(repository.data.lists.length).toBe(1);
+  });
+
+  it('añade un objetivo y lo persiste', () => {
+    const listId = store.lists()[0].id;
+    const goal = store.addGoal({ listId, title: '  Correr 5k  ', priority: 'high' });
+
+    expect(goal.title).toBe('Correr 5k');
+    expect(store.goals()).toEqual([goal]);
+    expect(repository.data.goals).toEqual([goal]);
+  });
+
+  it('marca un objetivo como completado y registra la fecha', () => {
+    const goal = store.addGoal({ listId: store.lists()[0].id, title: 'Leer' });
+
+    store.toggleCompleted(goal.id);
+    expect(store.goals()[0].completed).toBe(true);
+    expect(store.goals()[0].completedAt).not.toBeNull();
+
+    store.toggleCompleted(goal.id);
+    expect(store.goals()[0].completed).toBe(false);
+    expect(store.goals()[0].completedAt).toBeNull();
+  });
+
+  it('alterna la inclusión en "Mi día" según la fecha indicada', () => {
+    const goal = store.addGoal({ listId: store.lists()[0].id, title: 'Estudiar' });
+
+    store.toggleMyDay(goal.id, '2026-03-10');
+    expect(store.goals()[0].myDayDate).toBe('2026-03-10');
+
+    store.toggleMyDay(goal.id, '2026-03-10');
+    expect(store.goals()[0].myDayDate).toBeNull();
+  });
+
+  it('gestiona subtareas', () => {
+    const goal = store.addGoal({ listId: store.lists()[0].id, title: 'Proyecto' });
+
+    store.addSubtask(goal.id, 'Diseñar');
+    store.addSubtask(goal.id, 'Programar');
+    const [first] = store.goals()[0].subtasks;
+
+    store.toggleSubtask(goal.id, first.id);
+    expect(store.goals()[0].subtasks[0].done).toBe(true);
+
+    store.removeSubtask(goal.id, first.id);
+    expect(store.goals()[0].subtasks.map(subtask => subtask.title)).toEqual(['Programar']);
+  });
+
+  it('alterna la inclusión de una subtarea en "Mi día"', () => {
+    const goal = store.addGoal({ listId: store.lists()[0].id, title: 'Ingresos' });
+    store.addSubtask(goal.id, 'Redactar propuesta');
+    const subtaskId = store.goals()[0].subtasks[0].id;
+
+    store.toggleSubtaskMyDay(goal.id, subtaskId, '2026-03-10');
+    expect(store.goals()[0].subtasks[0].myDayDate).toBe('2026-03-10');
+
+    store.toggleSubtaskMyDay(goal.id, subtaskId, '2026-03-10');
+    expect(store.goals()[0].subtasks[0].myDayDate).toBeNull();
+  });
+
+  it('marcar una subtarea como hecha hoy no cambia su estado global', () => {
+    const goal = store.addGoal({ listId: store.lists()[0].id, title: 'Rutina' });
+    store.addSubtask(goal.id, 'Hacer ejercicio');
+    const subtaskId = store.goals()[0].subtasks[0].id;
+
+    store.toggleSubtaskDoneToday(goal.id, subtaskId, '2026-03-10');
+    expect(store.goals()[0].subtasks[0].myDayDoneDate).toBe('2026-03-10');
+    expect(store.goals()[0].subtasks[0].done).toBe(false);
+
+    store.toggleSubtaskDoneToday(goal.id, subtaskId, '2026-03-10');
+    expect(store.goals()[0].subtasks[0].myDayDoneDate).toBeNull();
+  });
+
+  it('alterna el estado contraído de una subtarea', () => {
+    const goal = store.addGoal({ listId: store.lists()[0].id, title: 'Ingresos' });
+    store.addSubtask(goal.id, 'Padre');
+    const parentId = store.goals()[0].subtasks[0].id;
+
+    store.toggleSubtaskCollapsed(goal.id, parentId);
+    expect(store.goals()[0].subtasks[0].collapsed).toBe(true);
+
+    store.toggleSubtaskCollapsed(goal.id, parentId);
+    expect(store.goals()[0].subtasks[0].collapsed).toBe(false);
+  });
+
+  it('gestiona subtareas anidadas a cualquier profundidad', () => {
+    const goal = store.addGoal({ listId: store.lists()[0].id, title: 'Ingresos' });
+    store.addSubtask(goal.id, 'Aumento de sueldo');
+    const salaryId = store.goals()[0].subtasks[0].id;
+
+    store.addSubtask(goal.id, 'Preparar negociación', salaryId);
+    const negotiationId = store.goals()[0].subtasks[0].subtasks[0].id;
+
+    store.addSubtask(goal.id, 'Reunir datos', negotiationId);
+    const dataId = store.goals()[0].subtasks[0].subtasks[0].subtasks[0].id;
+    expect(store.goals()[0].subtasks[0].subtasks[0].subtasks.map(subtask => subtask.title)).toEqual(['Reunir datos']);
+
+    store.toggleSubtask(goal.id, dataId);
+    expect(store.goals()[0].subtasks[0].subtasks[0].subtasks[0].done).toBe(true);
+
+    store.removeSubtask(goal.id, negotiationId);
+    expect(store.goals()[0].subtasks[0].subtasks).toHaveLength(0);
+  });
+
+  it('elimina una lista junto con sus objetivos', () => {
+    const personal = store.lists()[0];
+    const work = store.addList('Trabajo');
+    store.addGoal({ listId: personal.id, title: 'Personal 1' });
+    store.addGoal({ listId: work.id, title: 'Trabajo 1' });
+
+    store.removeList(work.id);
+
+    expect(store.lists().map(list => list.id)).toEqual([personal.id]);
+    expect(store.goals().map(goal => goal.title)).toEqual(['Personal 1']);
+  });
+
+  it('reemplaza todos los datos y persiste el resultado', () => {
+    store.addGoal({ listId: store.lists()[0].id, title: 'Antiguo' });
+    const imported = {
+      lists: [{ id: 'x1', name: 'Importada', createdAt: '2026-01-01T00:00:00.000Z' }],
+      goals: []
+    };
+
+    store.replaceAll(imported);
+
+    expect(store.lists().map(list => list.name)).toEqual(['Importada']);
+    expect(store.goals()).toEqual([]);
+    expect(repository.data.lists.map(list => list.name)).toEqual(['Importada']);
+  });
+
+  it('crea una lista por defecto si la importación no trae ninguna', () => {
+    store.replaceAll({ lists: [], goals: [] });
+
+    expect(store.lists().map(list => list.name)).toEqual(['Personal']);
+  });
+
+  it('recupera el estado previo desde el repositorio', () => {
+    const listId = store.lists()[0].id;
+    store.addGoal({ listId, title: 'Persistido' });
+
+    TestBed.resetTestingModule();
+    TestBed.configureTestingModule({
+      providers: [{ provide: GoalRepository, useValue: repository }]
+    });
+    const reloaded = TestBed.inject(GoalStore);
+
+    expect(reloaded.goals().map(goal => goal.title)).toEqual(['Persistido']);
+  });
+});

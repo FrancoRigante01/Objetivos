@@ -1,0 +1,33 @@
+<section class="space-y-2 border-t border-slate-200 pt-4">
+  <h2 class="px-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Datos</h2>
+
+  <div class="flex gap-2 px-1">
+    <button
+      type="button"
+      (click)="exportData()"
+      class="flex-1 rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+    >
+      Exportar
+    </button>
+    <button
+      type="button"
+      (click)="chooseFile()"
+      class="flex-1 rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+    >
+      Importar
+    </button>
+  </div>
+
+  <input #fileInput type="file" accept="application/json,.json" class="hidden" (change)="importFile($event)" />
+
+  @if (status(); as message) {
+    <p
+      role="status"
+      class="px-3 text-xs"
+      [class.text-emerald-700]="message.type === 'success'"
+      [class.text-rose-600]="message.type === 'error'"
+    >
+      {{ message.text }}
+    </p>
+  }
+</section>

@@ -1,0 +1,66 @@
+<div class="text-sm">
+  <div class="flex items-center gap-2">
+    @if (subtask().subtasks.length > 0) {
+      <button
+        type="button"
+        (click)="store.toggleSubtaskCollapsed(goalId(), subtask().id)"
+        [attr.aria-label]="(subtask().collapsed ? 'Expandir ' : 'Contraer ') + subtask().title"
+        [attr.aria-expanded]="!subtask().collapsed"
+        class="flex h-4 w-4 shrink-0 items-center justify-center text-xs text-slate-400 hover:text-slate-900"
+      >
+        {{ subtask().collapsed ? '▸' : '▾' }}
+      </button>
+    } @else {
+      <span class="h-4 w-4 shrink-0" aria-hidden="true"></span>
+    }
+
+    <input
+      type="checkbox"
+      [checked]="done()"
+      [disabled]="subtask().subtasks.length > 0"
+      (change)="store.toggleSubtask(goalId(), subtask().id)"
+      [attr.aria-label]="'Completar ' + subtask().title"
+      class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 disabled:opacity-50"
+    />
+    <span class="min-w-0 flex-1 truncate" [class.line-through]="done()" [class.text-slate-400]="done()">
+      {{ subtask().title }}
+    </span>
+    <button
+      type="button"
+      (click)="store.toggleSubtaskMyDay(goalId(), subtask().id)"
+      [attr.aria-pressed]="inMyDay()"
+      [attr.aria-label]="(inMyDay() ? 'Quitar de Mi día ' : 'Añadir a Mi día ') + subtask().title"
+      class="shrink-0 text-xs text-slate-400 hover:text-slate-900"
+      [class.font-medium]="inMyDay()"
+      [class.text-emerald-700]="inMyDay()"
+    >
+      Mi día
+    </button>
+    <button
+      type="button"
+      (click)="store.removeSubtask(goalId(), subtask().id)"
+      [attr.aria-label]="'Quitar ' + subtask().title"
+      class="text-xs text-slate-400 hover:text-rose-600"
+    >
+      Quitar
+    </button>
+  </div>
+
+  @if (!subtask().collapsed) {
+    <div class="ml-6 mt-1 space-y-1 border-l border-slate-200 pl-3">
+      @for (child of subtask().subtasks; track child.id) {
+        <app-subtask-item [goalId]="goalId()" [subtask]="child" />
+      }
+
+      <form [formGroup]="form" (ngSubmit)="addChild()">
+        <input
+          type="text"
+          formControlName="title"
+          placeholder="Añadir subtarea"
+          [attr.aria-label]="'Nueva subtarea en ' + subtask().title"
+          class="w-full border-b border-transparent bg-transparent px-0 py-1 text-sm placeholder:text-slate-400 focus:border-slate-300 focus:outline-none"
+        />
+      </form>
+    </div>
+  }
+</div>

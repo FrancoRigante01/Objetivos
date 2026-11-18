@@ -1,0 +1,15 @@
+<div class="mt-3 space-y-3">
+  @for (subtask of goal().subtasks; track subtask.id) {
+    <app-subtask-item [goalId]="goal().id" [subtask]="subtask" />
+  }
+
+  <form [formGroup]="form" (ngSubmit)="addSubtask()">
+    <input
+      type="text"
+      formControlName="title"
+      placeholder="Añadir subtarea"
+      aria-label="Nueva subtarea"
+      class="w-full border-b border-transparent bg-transparent px-0 py-1 text-sm placeholder:text-slate-400 focus:border-slate-300 focus:outline-none"
+    />
+  </form>
+</div>
