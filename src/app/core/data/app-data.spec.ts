@@ -34,12 +34,29 @@ const DATA: AppData = {
       ],
       createdAt: '2026-01-01T00:00:00.000Z'
     }
+  ],
+  reminders: [
+    { id: 'r1', title: 'Renovar seguro', remindAt: '2026-06-01T09:30', done: false, createdAt: '2026-01-01T00:00:00.000Z' }
   ]
 };
 
 describe('app-data', () => {
-  it('recupera exactamente los datos exportados, incluidas las subtareas anidadas', () => {
+  it('recupera exactamente los datos exportados, incluidas las subtareas anidadas y los recordatorios', () => {
     expect(parseAppData(serializeAppData(DATA))).toEqual(DATA);
+  });
+
+  it('rechaza recordatorios con campos inválidos', () => {
+    const broken = structuredClone(DATA);
+    (broken.reminders[0] as unknown as Record<string, unknown>)['done'] = 'no';
+    expect(() => parseAppData(JSON.stringify(broken))).toThrowError(INVALID);
+  });
+
+  it('migra copias de la versión 3 añadiendo una lista de recordatorios vacía', () => {
+    const legacy = { version: 3, lists: DATA.lists, goals: DATA.goals };
+
+    const data = parseAppData(JSON.stringify(legacy));
+
+    expect(data).toEqual({ version: APP_DATA_VERSION, lists: DATA.lists, goals: DATA.goals, reminders: [] });
   });
 
   it('rechaza texto que no es JSON', () => {

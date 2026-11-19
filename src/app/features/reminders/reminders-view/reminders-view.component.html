@@ -1,0 +1,75 @@
+<section class="mx-auto max-w-3xl">
+  <header class="mb-6 flex flex-wrap items-start justify-between gap-4">
+    <div class="min-w-0 flex-1">
+      <h1 class="truncate text-2xl font-semibold">Recordatorios</h1>
+      <p class="mt-1 text-sm text-slate-500">{{ pendingCount() }} pendientes</p>
+    </div>
+
+    <div class="flex shrink-0 flex-wrap items-center gap-2">
+      <button
+        type="button"
+        (click)="startCreate()"
+        class="rounded-lg bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-700"
+      >
+        Nuevo recordatorio
+      </button>
+    </div>
+  </header>
+
+  @if (creating()) {
+    <div class="mb-4">
+      <app-reminder-form (submitted)="createReminder($event)" (cancelled)="cancelForm()" />
+    </div>
+  }
+
+  @if (reminders().length === 0 && !creating()) {
+    <p class="rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">
+      No tienes recordatorios.
+    </p>
+  } @else {
+    <ul class="space-y-2">
+      @for (reminder of reminders(); track reminder.id) {
+        @if (editingReminderId() === reminder.id) {
+          <li>
+            <app-reminder-form [reminder]="reminder" (submitted)="updateReminder(reminder, $event)" (cancelled)="cancelForm()" />
+          </li>
+        } @else {
+          <li class="flex items-start gap-3 rounded-xl bg-white p-4 shadow-sm">
+            <button
+              type="button"
+              (click)="store.toggleReminderDone(reminder.id)"
+              [attr.aria-label]="reminder.done ? 'Marcar como pendiente' : 'Marcar como hecho'"
+              class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border text-xs text-white"
+              [class]="reminder.done ? 'border-emerald-500 bg-emerald-500' : 'border-slate-300 hover:border-emerald-500'"
+            >
+              @if (reminder.done) {
+                ✓
+              }
+            </button>
+
+            <div class="min-w-0 flex-1">
+              <p class="font-medium" [class.line-through]="reminder.done" [class.text-slate-400]="reminder.done">
+                {{ reminder.title }}
+              </p>
+              <p
+                class="mt-1 text-xs text-slate-500"
+                [class.font-medium]="isOverdue(reminder)"
+                [class.text-rose-600]="isOverdue(reminder)"
+              >
+                {{ formatRemindAt(reminder.remindAt) }}
+                @if (isOverdue(reminder)) {
+                  · Vencido
+                }
+              </p>
+
+              <div class="mt-3 flex flex-wrap gap-3 text-xs">
+                <button type="button" (click)="startEdit(reminder)" class="text-slate-500 hover:text-slate-900">Editar</button>
+                <button type="button" (click)="deleteReminder(reminder)" class="text-slate-500 hover:text-rose-600">Eliminar</button>
+              </div>
+            </div>
+          </li>
+        }
+      }
+    </ul>
+  }
+</section>

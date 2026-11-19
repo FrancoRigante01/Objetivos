@@ -18,6 +18,22 @@
   </section>
 
   <section>
+    <ul class="space-y-1">
+      <li>
+        <a
+          routerLink="/recordatorios"
+          routerLinkActive="bg-slate-100 font-medium text-slate-900"
+          (click)="navigate.emit()"
+          class="flex items-center justify-between rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-50"
+        >
+          <span>Recordatorios</span>
+          <span class="text-xs text-slate-400">{{ pendingReminders() }}</span>
+        </a>
+      </li>
+    </ul>
+  </section>
+
+  <section>
     <h2 class="px-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Listas</h2>
     <ul class="mt-2 space-y-1">
       @for (list of lists(); track list.id) {

@@ -24,7 +24,8 @@ export class DataTransferComponent {
     const json = serializeAppData({
       version: APP_DATA_VERSION,
       lists: [...this.store.lists()],
-      goals: [...this.store.goals()]
+      goals: [...this.store.goals()],
+      reminders: [...this.store.reminders()]
     });
     downloadTextFile(`objetivos-${todayIso()}.json`, json);
     this.status.set({ type: 'success', text: 'Copia exportada.' });

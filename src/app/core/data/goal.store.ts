@@ -1,6 +1,6 @@
 import { Injectable, inject, signal } from '@angular/core';
 
-import { Goal, GoalDraft, GoalList, Priority, Subtask } from '../models/goal.model';
+import { Goal, GoalDraft, GoalList, Priority, Reminder, ReminderDraft, Subtask } from '../models/goal.model';
 import { todayIso } from '../utils/goal-progress';
 import { addSubtaskToTree, removeSubtaskFromTree, updateSubtaskInTree } from '../utils/subtask-tree';
 import { APP_DATA_VERSION, GoalRepository } from './goal.repository';
@@ -15,14 +15,17 @@ export class GoalStore {
 
   private readonly listsState = signal<GoalList[]>([]);
   private readonly goalsState = signal<Goal[]>([]);
+  private readonly remindersState = signal<Reminder[]>([]);
 
   readonly lists = this.listsState.asReadonly();
   readonly goals = this.goalsState.asReadonly();
+  readonly reminders = this.remindersState.asReadonly();
 
   constructor() {
     const data = this.repository.load();
     this.listsState.set(data.lists);
     this.goalsState.set(data.goals);
+    this.remindersState.set(data.reminders);
 
     if (this.listsState().length === 0) {
       this.listsState.set([this.createList(DEFAULT_LIST_NAME)]);
@@ -151,9 +154,44 @@ export class GoalStore {
     }));
   }
 
-  replaceAll(data: { lists: GoalList[]; goals: Goal[] }): void {
+  addReminder(draft: ReminderDraft): Reminder {
+    const reminder: Reminder = {
+      id: crypto.randomUUID(),
+      title: draft.title.trim(),
+      remindAt: draft.remindAt,
+      done: false,
+      createdAt: new Date().toISOString()
+    };
+    this.remindersState.update(reminders => [...reminders, reminder]);
+    this.persist();
+    return reminder;
+  }
+
+  updateReminder(id: string, draft: ReminderDraft): void {
+    this.remindersState.update(reminders =>
+      reminders.map(reminder =>
+        reminder.id === id ? { ...reminder, title: draft.title.trim(), remindAt: draft.remindAt } : reminder
+      )
+    );
+    this.persist();
+  }
+
+  toggleReminderDone(id: string): void {
+    this.remindersState.update(reminders =>
+      reminders.map(reminder => (reminder.id === id ? { ...reminder, done: !reminder.done } : reminder))
+    );
+    this.persist();
+  }
+
+  removeReminder(id: string): void {
+    this.remindersState.update(reminders => reminders.filter(reminder => reminder.id !== id));
+    this.persist();
+  }
+
+  replaceAll(data: { lists: GoalList[]; goals: Goal[]; reminders: Reminder[] }): void {
     this.listsState.set(data.lists);
     this.goalsState.set(data.goals);
+    this.remindersState.set(data.reminders);
     if (data.lists.length === 0) {
       this.listsState.set([this.createList(DEFAULT_LIST_NAME)]);
     }
@@ -173,7 +211,8 @@ export class GoalStore {
     this.repository.save({
       version: APP_DATA_VERSION,
       lists: this.listsState(),
-      goals: this.goalsState()
+      goals: this.goalsState(),
+      reminders: this.remindersState()
     });
   }
 }

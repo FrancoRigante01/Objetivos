@@ -1,0 +1,42 @@
+<form
+  [formGroup]="form"
+  (ngSubmit)="submit()"
+  class="space-y-4 rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200"
+  novalidate
+>
+  <div>
+    <label for="reminder-title" class="block text-sm font-medium text-slate-700">Título</label>
+    <input
+      id="reminder-title"
+      type="text"
+      formControlName="title"
+      placeholder="¿Qué no quieres olvidar?"
+      class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+    />
+    @if (form.controls.title.touched && form.controls.title.invalid) {
+      <p class="mt-1 text-xs text-rose-600">{{ titleError() }}</p>
+    }
+  </div>
+
+  <div>
+    <label for="reminder-remind-at" class="block text-sm font-medium text-slate-700">Fecha y hora</label>
+    <input
+      id="reminder-remind-at"
+      type="datetime-local"
+      formControlName="remindAt"
+      class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+    />
+    @if (form.controls.remindAt.touched && form.controls.remindAt.invalid) {
+      <p class="mt-1 text-xs text-rose-600">La fecha y hora son obligatorias.</p>
+    }
+  </div>
+
+  <div class="flex justify-end gap-2">
+    <button type="button" (click)="cancelled.emit()" class="rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-100">
+      Cancelar
+    </button>
+    <button type="submit" class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700">
+      Guardar
+    </button>
+  </div>
+</form>

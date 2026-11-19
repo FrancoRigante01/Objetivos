@@ -9,14 +9,15 @@ describe('LocalStorageGoalRepository', () => {
   });
 
   it('devuelve datos vacíos cuando no hay nada guardado', () => {
-    expect(repository.load()).toEqual({ version: APP_DATA_VERSION, lists: [], goals: [] });
+    expect(repository.load()).toEqual({ version: APP_DATA_VERSION, lists: [], goals: [], reminders: [] });
   });
 
   it('guarda y recupera los datos', () => {
     const data: AppData = {
       version: APP_DATA_VERSION,
       lists: [{ id: 'l1', name: 'Personal', createdAt: '2026-01-01T00:00:00.000Z' }],
-      goals: []
+      goals: [],
+      reminders: []
     };
     repository.save(data);
     expect(repository.load()).toEqual(data);
@@ -24,12 +25,12 @@ describe('LocalStorageGoalRepository', () => {
 
   it('devuelve datos vacíos si el contenido guardado no es JSON válido', () => {
     localStorage.setItem('objetivos:data', '{no-es-json');
-    expect(repository.load()).toEqual({ version: APP_DATA_VERSION, lists: [], goals: [] });
+    expect(repository.load()).toEqual({ version: APP_DATA_VERSION, lists: [], goals: [], reminders: [] });
   });
 
   it('ignora datos con una versión desconocida', () => {
     localStorage.setItem('objetivos:data', JSON.stringify({ version: 999, lists: [], goals: [] }));
-    expect(repository.load()).toEqual({ version: APP_DATA_VERSION, lists: [], goals: [] });
+    expect(repository.load()).toEqual({ version: APP_DATA_VERSION, lists: [], goals: [], reminders: [] });
   });
 
   it('migra los datos de la versión 1 hasta la versión actual', () => {

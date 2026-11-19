@@ -1,11 +1,12 @@
-import { Goal, GoalList, Priority, Subtask } from '../models/goal.model';
+import { Goal, GoalList, Priority, Reminder, Subtask } from '../models/goal.model';
 
-export const APP_DATA_VERSION = 3;
+export const APP_DATA_VERSION = 4;
 
 export interface AppData {
   version: number;
   lists: GoalList[];
   goals: Goal[];
+  reminders: Reminder[];
 }
 
 const INVALID_BACKUP_MESSAGE = 'El archivo no es una copia válida de Objetivos.';
@@ -39,6 +40,12 @@ interface AppDataV2 {
   goals: (Omit<Goal, 'subtasks'> & { subtasks: SubtaskV2[] })[];
 }
 
+interface AppDataV3 {
+  version: 3;
+  lists: GoalList[];
+  goals: Goal[];
+}
+
 export function serializeAppData(data: AppData): string {
   return JSON.stringify(data, null, 2);
 }
@@ -58,9 +65,11 @@ export function parseAppData(text: string): AppData {
 function upgradeToCurrent(raw: Record<string, unknown>): unknown {
   switch (raw['version']) {
     case 1:
-      return migrateV2ToV3(migrateV1ToV2(raw as unknown as AppDataV1));
+      return migrateV3ToV4(migrateV2ToV3(migrateV1ToV2(raw as unknown as AppDataV1)));
     case 2:
-      return migrateV2ToV3(raw as unknown as AppDataV2);
+      return migrateV3ToV4(migrateV2ToV3(raw as unknown as AppDataV2));
+    case 3:
+      return migrateV3ToV4(raw as unknown as AppDataV3);
     default:
       return raw;
   }
@@ -77,15 +86,19 @@ function migrateV1ToV2(data: AppDataV1): AppDataV2 {
   };
 }
 
-function migrateV2ToV3(data: AppDataV2): AppData {
+function migrateV2ToV3(data: AppDataV2): AppDataV3 {
   return {
-    version: APP_DATA_VERSION,
+    version: 3,
     lists: data.lists,
     goals: data.goals.map(goal => ({
       ...goal,
       subtasks: goal.subtasks.map(subtaskV2ToV3)
     }))
   };
+}
+
+function migrateV3ToV4(data: AppDataV3): AppData {
+  return { version: APP_DATA_VERSION, lists: data.lists, goals: data.goals, reminders: [] };
 }
 
 function subtaskV2ToV3(subtask: SubtaskV2): Subtask {
@@ -103,10 +116,18 @@ function validateAppData(value: unknown): AppData {
   }
   const lists = value['lists'];
   const goals = value['goals'];
-  if (!Array.isArray(lists) || !lists.every(isGoalList) || !Array.isArray(goals) || !goals.every(isGoal)) {
+  const reminders = value['reminders'];
+  if (
+    !Array.isArray(lists) ||
+    !lists.every(isGoalList) ||
+    !Array.isArray(goals) ||
+    !goals.every(isGoal) ||
+    !Array.isArray(reminders) ||
+    !reminders.every(isReminder)
+  ) {
     throw new Error(INVALID_BACKUP_MESSAGE);
   }
-  return { version: APP_DATA_VERSION, lists, goals };
+  return { version: APP_DATA_VERSION, lists, goals, reminders };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -132,6 +153,17 @@ function isGoal(value: unknown): value is Goal {
     isString(value['createdAt']) &&
     Array.isArray(value['subtasks']) &&
     value['subtasks'].every(isSubtask)
+  );
+}
+
+function isReminder(value: unknown): value is Reminder {
+  return (
+    isRecord(value) &&
+    isString(value['id']) &&
+    isString(value['title']) &&
+    isString(value['remindAt']) &&
+    typeof value['done'] === 'boolean' &&
+    isString(value['createdAt'])
   );
 }
 

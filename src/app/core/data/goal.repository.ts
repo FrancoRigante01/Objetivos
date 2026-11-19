@@ -12,7 +12,7 @@ export abstract class GoalRepository {
 const STORAGE_KEY = 'objetivos:data';
 
 function emptyData(): AppData {
-  return { version: APP_DATA_VERSION, lists: [], goals: [] };
+  return { version: APP_DATA_VERSION, lists: [], goals: [], reminders: [] };
 }
 
 @Injectable()

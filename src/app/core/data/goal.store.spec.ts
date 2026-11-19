@@ -138,7 +138,8 @@ describe('GoalStore', () => {
     store.addGoal({ listId: store.lists()[0].id, title: 'Antiguo' });
     const imported = {
       lists: [{ id: 'x1', name: 'Importada', createdAt: '2026-01-01T00:00:00.000Z' }],
-      goals: []
+      goals: [],
+      reminders: []
     };
 
     store.replaceAll(imported);
@@ -149,9 +150,34 @@ describe('GoalStore', () => {
   });
 
   it('crea una lista por defecto si la importación no trae ninguna', () => {
-    store.replaceAll({ lists: [], goals: [] });
+    store.replaceAll({ lists: [], goals: [], reminders: [] });
 
     expect(store.lists().map(list => list.name)).toEqual(['Personal']);
+  });
+
+  it('añade, edita, completa y elimina recordatorios y los persiste', () => {
+    const reminder = store.addReminder({ title: '  Pagar factura  ', remindAt: '2026-03-10T18:00' });
+    expect(reminder.title).toBe('Pagar factura');
+    expect(repository.data.reminders).toEqual([reminder]);
+
+    store.updateReminder(reminder.id, { title: 'Pagar luz', remindAt: '2026-03-11T09:00' });
+    expect(store.reminders()[0].title).toBe('Pagar luz');
+    expect(store.reminders()[0].remindAt).toBe('2026-03-11T09:00');
+
+    store.toggleReminderDone(reminder.id);
+    expect(store.reminders()[0].done).toBe(true);
+
+    store.removeReminder(reminder.id);
+    expect(store.reminders()).toEqual([]);
+    expect(repository.data.reminders).toEqual([]);
+  });
+
+  it('elimina los recordatorios al reemplazar los datos sin ellos', () => {
+    store.addReminder({ title: 'Antiguo', remindAt: '2026-03-10T18:00' });
+
+    store.replaceAll({ lists: [], goals: [], reminders: [] });
+
+    expect(store.reminders()).toEqual([]);
   });
 
   it('recupera el estado previo desde el repositorio', () => {

@@ -43,3 +43,16 @@ export interface GoalDraft {
   dueDate?: string | null;
   priority?: Priority;
 }
+
+export interface Reminder {
+  id: string;
+  title: string;
+  remindAt: string;
+  done: boolean;
+  createdAt: string;
+}
+
+export interface ReminderDraft {
+  title: string;
+  remindAt: string;
+}
