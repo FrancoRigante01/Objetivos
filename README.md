@@ -31,3 +31,8 @@ npm start
 ```
 
 Después abrí `http://localhost:4200/`
+
+## Decisiones de diseño
+
+### Sin backend, datos en el navegador
+La app no necesita servidor ni base de datos. Todo el estado se guarda en `localStorage` bajo una sola clave, lo que simplifica el despliegue (cualquier hosting estático sirve) y permite usarla sin cuenta. El costo es que los datos viven en un solo navegador, por eso existe la exportación e importación en un archivo JSON.
