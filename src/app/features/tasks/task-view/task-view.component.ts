@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, signal } from '@angular/core';
+import { Component, Injector, afterNextRender, computed, effect, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { GoalStore } from '../../../core/data/goal.store';
@@ -26,6 +26,9 @@ export class TaskViewComponent {
 
   readonly smartList = input<SmartListKey>();
   readonly listId = input<string>();
+  readonly highlightedGoalId = input<string>('', { alias: 'resaltar' });
+
+  private readonly injector = inject(Injector);
 
   protected readonly today = todayIso();
   protected readonly priorityLabels = PRIORITY_LABELS;
@@ -38,6 +41,17 @@ export class TaskViewComponent {
   protected readonly creating = signal(false);
   protected readonly editingGoalId = signal<string | null>(null);
   protected readonly renaming = signal(false);
+
+  constructor() {
+    effect(() => {
+      const goalId = this.highlightedGoalId();
+      if (goalId) {
+        afterNextRender(() => document.getElementById(`goal-${goalId}`)?.scrollIntoView({ block: 'center' }), {
+          injector: this.injector
+        });
+      }
+    });
+  }
 
   protected readonly currentList = computed(() => this.store.lists().find(list => list.id === this.listId()));
   protected readonly defaultListId = computed(() => this.currentList()?.id ?? this.store.lists()[0]?.id ?? '');

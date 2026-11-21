@@ -56,7 +56,12 @@
             />
           </li>
         } @else {
-          <li class="flex items-start gap-3 rounded-xl bg-white p-4 shadow-sm">
+          <li
+            [id]="'goal-' + goal.id"
+            class="flex items-start gap-3 rounded-xl bg-white p-4 shadow-sm"
+            [class.ring-2]="goal.id === highlightedGoalId()"
+            [class.ring-emerald-500]="goal.id === highlightedGoalId()"
+          >
             <button
               type="button"
               (click)="store.toggleCompleted(goal.id)"

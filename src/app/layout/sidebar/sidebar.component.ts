@@ -6,11 +6,12 @@ import { todayIso } from '../../core/utils/goal-progress';
 import { countPendingReminders } from '../../core/utils/reminders';
 import { countSmartList, SMART_LISTS, SmartListKey } from '../../core/utils/smart-lists';
 import { DataTransferComponent } from '../../features/data-transfer/data-transfer.component';
+import { GlobalSearchComponent } from '../../features/search/global-search/global-search.component';
 import { ListNameFormComponent } from '../../features/lists/list-name-form/list-name-form.component';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [RouterLink, RouterLinkActive, ListNameFormComponent, DataTransferComponent],
+  imports: [RouterLink, RouterLinkActive, ListNameFormComponent, DataTransferComponent, GlobalSearchComponent],
   templateUrl: './sidebar.component.html'
 })
 export class SidebarComponent {
