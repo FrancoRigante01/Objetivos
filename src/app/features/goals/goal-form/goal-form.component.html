@@ -1,39 +1,39 @@
 <form
   [formGroup]="form"
   (ngSubmit)="submit()"
-  class="space-y-4 rounded-xl bg-white p-4 shadow-sm ring-1 ring-slate-200"
+  class="space-y-4 rounded-xl bg-white dark:bg-slate-900 p-4 shadow-sm ring-1 ring-slate-200 dark:ring-slate-800"
   novalidate
 >
   <div>
-    <label for="goal-title" class="block text-sm font-medium text-slate-700">Título</label>
+    <label for="goal-title" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Título</label>
     <input
       id="goal-title"
       type="text"
       formControlName="title"
       placeholder="¿Qué quieres lograr?"
-      class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+      class="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
     />
     @if (form.controls.title.touched && form.controls.title.invalid) {
-      <p class="mt-1 text-xs text-rose-600">{{ titleError() }}</p>
+      <p class="mt-1 text-xs text-rose-600 dark:text-rose-400">{{ titleError() }}</p>
     }
   </div>
 
   <div>
-    <label for="goal-description" class="block text-sm font-medium text-slate-700">Descripción</label>
+    <label for="goal-description" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Descripción</label>
     <textarea
       id="goal-description"
       rows="3"
       formControlName="description"
-      class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+      class="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
     ></textarea>
   </div>
 
   <div>
-    <label for="goal-kind" class="block text-sm font-medium text-slate-700">Tipo</label>
+    <label for="goal-kind" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Tipo</label>
     <select
       id="goal-kind"
       formControlName="kind"
-      class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+      class="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
     >
       @for (option of kindOptions; track option.value) {
         <option [value]="option.value">{{ option.label }}</option>
@@ -43,11 +43,11 @@
 
   <div class="grid gap-4 sm:grid-cols-3">
     <div>
-      <label for="goal-list" class="block text-sm font-medium text-slate-700">Lista</label>
+      <label for="goal-list" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Lista</label>
       <select
         id="goal-list"
         formControlName="listId"
-        class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+        class="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
       >
         @for (list of lists(); track list.id) {
           <option [value]="list.id">{{ list.name }}</option>
@@ -57,22 +57,22 @@
 
     @if (!isRoutine()) {
       <div>
-        <label for="goal-due-date" class="block text-sm font-medium text-slate-700">Fecha estimada</label>
+        <label for="goal-due-date" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Fecha estimada</label>
         <input
           id="goal-due-date"
           type="date"
           formControlName="dueDate"
-          class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+          class="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
         />
       </div>
     }
 
     <div>
-      <label for="goal-priority" class="block text-sm font-medium text-slate-700">Prioridad</label>
+      <label for="goal-priority" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Prioridad</label>
       <select
         id="goal-priority"
         formControlName="priority"
-        class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+        class="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
       >
         @for (option of priorityOptions; track option.value) {
           <option [value]="option.value">{{ option.label }}</option>
@@ -82,10 +82,10 @@
   </div>
 
   <div class="flex justify-end gap-2">
-    <button type="button" (click)="cancelled.emit()" class="rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-100">
+    <button type="button" (click)="cancelled.emit()" class="rounded-lg px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
       Cancelar
     </button>
-    <button type="submit" class="rounded-lg bg-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700">
+    <button type="submit" class="rounded-lg bg-slate-900 dark:bg-slate-100 dark:text-slate-900 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 dark:hover:bg-slate-300">
       Guardar
     </button>
   </div>

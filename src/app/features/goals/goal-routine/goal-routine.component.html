@@ -1,10 +1,10 @@
 <div class="mt-3 space-y-2">
   @if (goal().completed) {
-    <p class="text-sm font-medium text-emerald-700">Rutina completada: {{ target }} días seguidos.</p>
+    <p class="text-sm font-medium text-emerald-700 dark:text-emerald-400">Rutina completada: {{ target }} días seguidos.</p>
   } @else {
     <div class="flex flex-wrap items-center gap-3">
       <span class="text-2xl font-semibold tabular-nums">{{ goal().routine?.count ?? 0 }}</span>
-      <span class="text-sm text-slate-500">de {{ target }} días de racha</span>
+      <span class="text-sm text-slate-500 dark:text-slate-400">de {{ target }} días de racha</span>
       <button
         type="button"
         (click)="store.addRoutineCount(goal().id)"
@@ -12,17 +12,17 @@
       >
         +1 día
       </button>
-      <button type="button" (click)="restart()" class="text-xs text-slate-500 hover:text-rose-600">
+      <button type="button" (click)="restart()" class="text-xs text-slate-500 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400">
         Reiniciar racha
       </button>
     </div>
   }
 
-  <div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+  <div class="h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
     <div class="h-full rounded-full bg-emerald-500" [style.width.%]="progress()"></div>
   </div>
 
-  <div class="flex flex-wrap gap-x-4 text-xs text-slate-500">
+  <div class="flex flex-wrap gap-x-4 text-xs text-slate-500 dark:text-slate-400">
     <span>Mejor racha: {{ goal().routine?.bestCount ?? 0 }}</span>
     <span>Última anotación: {{ lastCounted() }}</span>
   </div>

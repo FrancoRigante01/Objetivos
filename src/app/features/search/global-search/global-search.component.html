@@ -1,19 +1,19 @@
 <button
   type="button"
   (click)="openSearch()"
-  class="flex w-full items-center justify-between rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-500 hover:bg-slate-50"
+  class="flex w-full items-center justify-between rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800"
 >
   <span>Buscar</span>
-  <kbd class="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-400">Ctrl K</kbd>
+  <kbd class="rounded bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 text-xs text-slate-400 dark:text-slate-500">Ctrl K</kbd>
 </button>
 
 <dialog
   #dialog
   aria-label="Buscar"
-  class="w-full max-w-xl overflow-hidden rounded-xl bg-white p-0 shadow-xl backdrop:bg-slate-900/30"
+  class="w-full max-w-xl overflow-hidden rounded-xl bg-white dark:bg-slate-900 p-0 shadow-xl backdrop:bg-slate-900/30 dark:backdrop:bg-black/50"
   (click)="$event.target === $event.currentTarget && close()"
 >
-  <div class="border-b border-slate-200 p-3">
+  <div class="border-b border-slate-200 dark:border-slate-800 p-3">
     <input
       #search
       type="search"
@@ -25,14 +25,14 @@
       [value]="query()"
       (input)="updateQuery(search.value)"
       (keydown)="onInputKeydown($event)"
-      class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+      class="w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
     />
   </div>
 
   @if (query().trim() === '') {
-    <p class="p-6 text-center text-sm text-slate-500">Escribí para buscar en objetivos y subtareas.</p>
+    <p class="p-6 text-center text-sm text-slate-500 dark:text-slate-400">Escribí para buscar en objetivos y subtareas.</p>
   } @else if (results().length === 0) {
-    <p class="p-6 text-center text-sm text-slate-500">Sin resultados.</p>
+    <p class="p-6 text-center text-sm text-slate-500 dark:text-slate-400">Sin resultados.</p>
   } @else {
     <ul #listbox id="search-results" role="listbox" class="max-h-96 overflow-y-auto p-2">
       @for (result of results(); track $index) {
@@ -45,11 +45,11 @@
           [class.bg-slate-100]="$index === activeIndex()"
         >
           <p class="truncate text-sm font-medium">{{ primaryText(result) }}</p>
-          <p class="truncate text-xs text-slate-500">{{ secondaryText(result) }}</p>
+          <p class="truncate text-xs text-slate-500 dark:text-slate-400">{{ secondaryText(result) }}</p>
         </li>
       }
     </ul>
   }
 
-  <p class="border-t border-slate-200 px-3 py-2 text-xs text-slate-400">↑ ↓ navegar · Enter abrir · Esc cerrar</p>
+  <p class="border-t border-slate-200 dark:border-slate-800 px-3 py-2 text-xs text-slate-400 dark:text-slate-500">↑ ↓ navegar · Enter abrir · Esc cerrar</p>
 </dialog>

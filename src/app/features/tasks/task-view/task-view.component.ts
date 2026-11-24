@@ -43,9 +43,9 @@ export class TaskViewComponent {
   protected readonly today = todayIso();
   protected readonly priorityLabels = PRIORITY_LABELS;
   protected readonly priorityClasses: Record<Priority, string> = {
-    low: 'bg-slate-100 text-slate-600',
-    medium: 'bg-amber-100 text-amber-700',
-    high: 'bg-rose-100 text-rose-700'
+    low: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300',
+    medium: 'bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300',
+    high: 'bg-rose-100 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300'
   };
 
   protected readonly statusOptions: { value: GoalStatusFilter; label: string }[] = [

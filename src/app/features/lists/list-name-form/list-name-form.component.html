@@ -6,16 +6,16 @@
     aria-label="Nombre de la lista"
     placeholder="Nombre de la lista"
     (keydown.escape)="cancelled.emit()"
-    class="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+    class="w-full rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
   />
   @if (form.controls.name.touched && form.controls.name.invalid) {
-    <p class="text-xs text-rose-600">El nombre es obligatorio (máximo 60 caracteres).</p>
+    <p class="text-xs text-rose-600 dark:text-rose-400">El nombre es obligatorio (máximo 60 caracteres).</p>
   }
   <div class="flex gap-2">
-    <button type="submit" class="rounded-lg bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-700">
+    <button type="submit" class="rounded-lg bg-slate-900 dark:bg-slate-100 dark:text-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-700 dark:hover:bg-slate-300">
       {{ submitLabel() }}
     </button>
-    <button type="button" (click)="cancelled.emit()" class="rounded-lg px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-100">
+    <button type="button" (click)="cancelled.emit()" class="rounded-lg px-3 py-1.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
       Cancelar
     </button>
   </div>

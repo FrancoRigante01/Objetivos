@@ -6,7 +6,7 @@
         (click)="store.toggleSubtaskCollapsed(goalId(), subtask().id)"
         [attr.aria-label]="(subtask().collapsed ? 'Expandir ' : 'Contraer ') + subtask().title"
         [attr.aria-expanded]="!subtask().collapsed"
-        class="flex h-4 w-4 shrink-0 items-center justify-center text-xs text-slate-400 hover:text-slate-900"
+        class="flex h-4 w-4 shrink-0 items-center justify-center text-xs text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
       >
         {{ subtask().collapsed ? '▸' : '▾' }}
       </button>
@@ -20,7 +20,7 @@
       [disabled]="subtask().subtasks.length > 0"
       (change)="store.toggleSubtask(goalId(), subtask().id)"
       [attr.aria-label]="'Completar ' + subtask().title"
-      class="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 disabled:opacity-50"
+      class="h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-emerald-600 focus:ring-emerald-500 disabled:opacity-50"
     />
     <span class="min-w-0 flex-1 truncate" [class.line-through]="done()" [class.text-slate-400]="done()">
       {{ subtask().title }}
@@ -30,7 +30,7 @@
       (click)="store.toggleSubtaskMyDay(goalId(), subtask().id)"
       [attr.aria-pressed]="inMyDay()"
       [attr.aria-label]="(inMyDay() ? 'Quitar de Mi día ' : 'Añadir a Mi día ') + subtask().title"
-      class="shrink-0 text-xs text-slate-400 hover:text-slate-900"
+      class="shrink-0 text-xs text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
       [class.font-medium]="inMyDay()"
       [class.text-emerald-700]="inMyDay()"
     >
@@ -40,14 +40,14 @@
       type="button"
       (click)="store.removeSubtask(goalId(), subtask().id)"
       [attr.aria-label]="'Quitar ' + subtask().title"
-      class="text-xs text-slate-400 hover:text-rose-600"
+      class="text-xs text-slate-400 dark:text-slate-500 hover:text-rose-600 dark:hover:text-rose-400"
     >
       Quitar
     </button>
   </div>
 
   @if (!subtask().collapsed) {
-    <div class="ml-6 mt-1 space-y-1 border-l border-slate-200 pl-3">
+    <div class="ml-6 mt-1 space-y-1 border-l border-slate-200 dark:border-slate-800 pl-3">
       @for (child of subtask().subtasks; track child.id) {
         <app-subtask-item [goalId]="goalId()" [subtask]="child" />
       }
@@ -58,7 +58,7 @@
           formControlName="title"
           placeholder="Añadir subtarea"
           [attr.aria-label]="'Nueva subtarea en ' + subtask().title"
-          class="w-full border-b border-transparent bg-transparent px-0 py-1 text-sm placeholder:text-slate-400 focus:border-slate-300 focus:outline-none"
+          class="w-full border-b border-transparent bg-transparent px-0 py-1 text-sm placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:border-slate-300 dark:focus:border-slate-600 focus:outline-none"
         />
       </form>
     </div>
