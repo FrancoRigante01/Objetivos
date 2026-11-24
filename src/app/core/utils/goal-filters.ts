@@ -21,7 +21,7 @@ export const DEFAULT_GOAL_FILTERS: GoalFilters = {
 };
 
 export const SORT_LABELS: Record<GoalSortKey, string> = {
-  manual: 'Orden de creación',
+  manual: 'Orden manual (arrastrar)',
   title: 'Título (A-Z)',
   priority: 'Prioridad (alta primero)',
   dueDate: 'Fecha estimada (próxima primero)',

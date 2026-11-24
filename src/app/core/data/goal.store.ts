@@ -12,6 +12,7 @@ import {
   Subtask
 } from '../models/goal.model';
 import { todayIso } from '../utils/goal-progress';
+import { moveItem } from '../utils/reorder';
 import { addRoutineCount, createRoutineState, restartRoutine } from '../utils/routine';
 import { addSubtaskToTree, removeSubtaskFromTree, updateSubtaskInTree } from '../utils/subtask-tree';
 import { APP_DATA_VERSION, GoalRepository } from './goal.repository';
@@ -81,6 +82,11 @@ export class GoalStore {
     this.goalsState.update(goals => [...goals, goal]);
     this.persist();
     return goal;
+  }
+
+  moveGoal(id: string, targetId: string): void {
+    this.goalsState.update(goals => moveItem(goals, id, targetId));
+    this.persist();
   }
 
   updateGoal(id: string, changes: GoalChanges): void {

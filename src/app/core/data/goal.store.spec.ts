@@ -30,6 +30,18 @@ describe('GoalStore', () => {
     expect(repository.data.goals).toEqual([goal]);
   });
 
+  it('reordena los objetivos y persiste el nuevo orden', () => {
+    const listId = store.lists()[0].id;
+    const first = store.addGoal({ listId, title: 'Primero' });
+    store.addGoal({ listId, title: 'Segundo' });
+    const third = store.addGoal({ listId, title: 'Tercero' });
+
+    store.moveGoal(first.id, third.id);
+
+    expect(store.goals().map(goal => goal.title)).toEqual(['Segundo', 'Tercero', 'Primero']);
+    expect(repository.data.goals.map(goal => goal.title)).toEqual(['Segundo', 'Tercero', 'Primero']);
+  });
+
   it('marca un objetivo como completado y registra la fecha', () => {
     const goal = store.addGoal({ listId: store.lists()[0].id, title: 'Leer' });
 

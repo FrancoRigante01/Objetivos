@@ -123,7 +123,20 @@
             class="flex items-start gap-3 rounded-xl bg-white dark:bg-slate-900 p-4 shadow-sm"
             [class.ring-2]="goal.id === highlightedGoalId()"
             [class.ring-emerald-500]="goal.id === highlightedGoalId()"
+            [class.opacity-40]="draggedGoalId() === goal.id"
+            [class.outline-2]="dropTargetId() === goal.id"
+            [class.outline-dashed]="dropTargetId() === goal.id"
+            [class.outline-emerald-500]="dropTargetId() === goal.id"
+            [draggable]="canReorder()"
+            (dragstart)="startDrag($event, goal)"
+            (dragover)="dragOver($event, goal)"
+            (dragleave)="dragLeave(goal)"
+            (drop)="drop($event, goal)"
+            (dragend)="endDrag()"
           >
+            @if (canReorder()) {
+              <span class="mt-0.5 shrink-0 cursor-grab select-none text-slate-300 dark:text-slate-600" aria-hidden="true">⠿</span>
+            }
             <button
               type="button"
               (click)="store.toggleCompleted(goal.id)"

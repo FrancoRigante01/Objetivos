@@ -75,6 +75,10 @@ export class TaskViewComponent {
   protected readonly editingGoalId = signal<string | null>(null);
   protected readonly renaming = signal(false);
 
+  protected readonly canReorder = computed(() => this.filters().sort === 'manual');
+  protected readonly draggedGoalId = signal<string | null>(null);
+  protected readonly dropTargetId = signal<string | null>(null);
+
   constructor() {
     effect(() => {
       const goalId = this.highlightedGoalId();
@@ -171,6 +175,46 @@ export class TaskViewComponent {
   protected updateGoal(goal: Goal, draft: GoalDraft): void {
     this.store.updateGoal(goal.id, draft);
     this.editingGoalId.set(null);
+  }
+
+  protected startDrag(event: DragEvent, goal: Goal): void {
+    this.draggedGoalId.set(goal.id);
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', goal.title);
+    }
+  }
+
+  protected dragOver(event: DragEvent, goal: Goal): void {
+    const draggedId = this.draggedGoalId();
+    if (!draggedId || draggedId === goal.id) {
+      return;
+    }
+    event.preventDefault();
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'move';
+    }
+    this.dropTargetId.set(goal.id);
+  }
+
+  protected dragLeave(goal: Goal): void {
+    if (this.dropTargetId() === goal.id) {
+      this.dropTargetId.set(null);
+    }
+  }
+
+  protected drop(event: DragEvent, goal: Goal): void {
+    event.preventDefault();
+    const draggedId = this.draggedGoalId();
+    if (draggedId && draggedId !== goal.id) {
+      this.store.moveGoal(draggedId, goal.id);
+    }
+    this.endDrag();
+  }
+
+  protected endDrag(): void {
+    this.draggedGoalId.set(null);
+    this.dropTargetId.set(null);
   }
 
   protected deleteGoal(goal: Goal): void {
