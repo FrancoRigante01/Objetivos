@@ -152,6 +152,13 @@ export class GoalStore {
     }));
   }
 
+  renameSubtask(goalId: string, subtaskId: string, title: string): void {
+    this.updateGoalById(goalId, goal => ({
+      ...goal,
+      subtasks: updateSubtaskInTree(goal.subtasks, subtaskId, subtask => ({ ...subtask, title: title.trim() }))
+    }));
+  }
+
   toggleSubtask(goalId: string, subtaskId: string): void {
     this.updateGoalById(goalId, goal => ({
       ...goal,

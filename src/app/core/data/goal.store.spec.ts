@@ -78,6 +78,19 @@ describe('GoalStore', () => {
     expect(store.goals()[0].subtasks.map(subtask => subtask.title)).toEqual(['Programar']);
   });
 
+  it('renombra una subtarea anidada, sin espacios sobrantes, y lo persiste', () => {
+    const goal = store.addGoal({ listId: store.lists()[0].id, title: 'Proyecto' });
+    store.addSubtask(goal.id, 'Fase 1');
+    const parentId = store.goals()[0].subtasks[0].id;
+    store.addSubtask(goal.id, 'Tarea vieja', parentId);
+    const childId = store.goals()[0].subtasks[0].subtasks[0].id;
+
+    store.renameSubtask(goal.id, childId, '  Tarea nueva  ');
+
+    expect(store.goals()[0].subtasks[0].subtasks[0].title).toBe('Tarea nueva');
+    expect(store.goals()[0].subtasks[0].title).toBe('Fase 1');
+  });
+
   it('alterna la inclusión de una subtarea en "Mi día"', () => {
     const goal = store.addGoal({ listId: store.lists()[0].id, title: 'Ingresos' });
     store.addSubtask(goal.id, 'Redactar propuesta');

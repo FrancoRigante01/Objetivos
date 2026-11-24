@@ -22,9 +22,36 @@
       [attr.aria-label]="'Completar ' + subtask().title"
       class="h-4 w-4 rounded border-slate-300 dark:border-slate-700 text-emerald-600 focus:ring-emerald-500 disabled:opacity-50"
     />
-    <span class="min-w-0 flex-1 truncate" [class.line-through]="done()" [class.text-slate-400]="done()">
-      {{ subtask().title }}
-    </span>
+    @if (editing()) {
+      <form [formGroup]="editForm" (ngSubmit)="saveEdit()" class="min-w-0 flex-1">
+        <input
+          #editInput
+          type="text"
+          formControlName="title"
+          (keydown.escape)="cancelEdit()"
+          (blur)="saveEdit()"
+          [attr.aria-label]="'Editar ' + subtask().title"
+          class="w-full border-b border-slate-300 dark:border-slate-600 bg-transparent px-0 py-0.5 text-sm focus:outline-none"
+        />
+      </form>
+    } @else {
+      <span
+        class="min-w-0 flex-1 truncate"
+        [class.line-through]="done()"
+        [class.text-slate-400]="done()"
+        (dblclick)="startEdit()"
+      >
+        {{ subtask().title }}
+      </span>
+      <button
+        type="button"
+        (click)="startEdit()"
+        [attr.aria-label]="'Editar ' + subtask().title"
+        class="shrink-0 text-xs text-slate-400 dark:text-slate-500 hover:text-slate-900 dark:hover:text-slate-100"
+      >
+        Editar
+      </button>
+    }
     <button
       type="button"
       (click)="store.toggleSubtaskMyDay(goalId(), subtask().id)"
