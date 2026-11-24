@@ -24,6 +24,11 @@ export interface GoalList {
 
 export type GoalKind = 'one-off' | 'routine';
 
+export const KIND_LABELS: Record<GoalKind, string> = {
+  'one-off': 'Puntual',
+  routine: 'Rutina (racha de días)'
+};
+
 export const ROUTINE_TARGET_DAYS = 90;
 
 export interface RoutineState {

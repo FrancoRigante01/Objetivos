@@ -3,14 +3,10 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 
 import { GoalStore } from '../../../core/data/goal.store';
 import { notBlank } from '../../../core/forms/validators';
-import { Goal, GoalDraft, GoalKind, PRIORITY_LABELS, Priority } from '../../../core/models/goal.model';
+import { Goal, GoalDraft, GoalKind, KIND_LABELS, PRIORITY_LABELS, Priority } from '../../../core/models/goal.model';
 
 const TITLE_MAX_LENGTH = 120;
 const DESCRIPTION_MAX_LENGTH = 500;
-const KIND_LABELS: Record<GoalKind, string> = {
-  'one-off': 'Puntual',
-  routine: 'Rutina (racha de días)'
-};
 
 @Component({
   selector: 'app-goal-form',

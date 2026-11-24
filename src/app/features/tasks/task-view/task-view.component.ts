@@ -2,7 +2,16 @@ import { Component, Injector, afterNextRender, computed, effect, inject, input, 
 import { Router } from '@angular/router';
 
 import { GoalStore } from '../../../core/data/goal.store';
-import { Goal, GoalDraft, PRIORITY_LABELS, Priority, Subtask } from '../../../core/models/goal.model';
+import { Goal, GoalDraft, GoalKind, KIND_LABELS, PRIORITY_LABELS, Priority, Subtask } from '../../../core/models/goal.model';
+import {
+  applyGoalFilters,
+  DEFAULT_GOAL_FILTERS,
+  GoalFilters,
+  GoalSortKey,
+  GoalStatusFilter,
+  hasActiveGoalFilters,
+  SORT_LABELS
+} from '../../../core/utils/goal-filters';
 import { getGoalProgress, todayIso } from '../../../core/utils/goal-progress';
 import {
   filterBySmartList,
@@ -39,6 +48,29 @@ export class TaskViewComponent {
     high: 'bg-rose-100 text-rose-700'
   };
 
+  protected readonly statusOptions: { value: GoalStatusFilter; label: string }[] = [
+    { value: 'all', label: 'Todos los estados' },
+    { value: 'pending', label: 'Pendientes' },
+    { value: 'completed', label: 'Completados' }
+  ];
+  protected readonly priorityOptions: { value: Priority | 'all'; label: string }[] = [
+    { value: 'all', label: 'Todas las prioridades' },
+    { value: 'high', label: PRIORITY_LABELS.high },
+    { value: 'medium', label: PRIORITY_LABELS.medium },
+    { value: 'low', label: PRIORITY_LABELS.low }
+  ];
+  protected readonly kindOptions: { value: GoalKind | 'all'; label: string }[] = [
+    { value: 'all', label: 'Todos los tipos' },
+    { value: 'one-off', label: KIND_LABELS['one-off'] },
+    { value: 'routine', label: KIND_LABELS.routine }
+  ];
+  protected readonly sortOptions: { value: GoalSortKey; label: string }[] = (
+    Object.keys(SORT_LABELS) as GoalSortKey[]
+  ).map(value => ({ value, label: SORT_LABELS[value] }));
+
+  protected readonly filters = signal<GoalFilters>(DEFAULT_GOAL_FILTERS);
+  protected readonly filtersActive = computed(() => hasActiveGoalFilters(this.filters()));
+
   protected readonly creating = signal(false);
   protected readonly editingGoalId = signal<string | null>(null);
   protected readonly renaming = signal(false);
@@ -65,7 +97,7 @@ export class TaskViewComponent {
     return this.currentList()?.name ?? 'Lista no encontrada';
   });
 
-  protected readonly goals = computed<Goal[]>(() => {
+  protected readonly viewGoals = computed<Goal[]>(() => {
     const key = this.smartList();
     if (key) {
       return filterBySmartList(this.store.goals(), key, this.today);
@@ -73,13 +105,15 @@ export class TaskViewComponent {
     return this.store.goals().filter(goal => goal.listId === this.listId());
   });
 
+  protected readonly goals = computed<Goal[]>(() => applyGoalFilters(this.viewGoals(), this.filters()));
+
   protected readonly mySubtasks = computed<MyDaySubtask[]>(() =>
     this.smartList() === 'myDay' ? getMyDaySubtasks(this.store.goals(), this.today) : []
   );
 
   protected readonly pendingCount = computed(
     () =>
-      this.goals().filter(goal => !goal.completed).length +
+      this.viewGoals().filter(goal => !goal.completed).length +
       this.mySubtasks().filter(entry => !this.isDoneToday(entry.subtask)).length
   );
 
@@ -104,6 +138,14 @@ export class TaskViewComponent {
     return new Intl.DateTimeFormat('es', { day: 'numeric', month: 'short', year: 'numeric' }).format(
       new Date(year, month - 1, day)
     );
+  }
+
+  protected setFilter<K extends keyof GoalFilters>(key: K, value: GoalFilters[K]): void {
+    this.filters.update(filters => ({ ...filters, [key]: value }));
+  }
+
+  protected clearFilters(): void {
+    this.filters.update(filters => ({ ...DEFAULT_GOAL_FILTERS, sort: filters.sort }));
   }
 
   protected startCreate(): void {

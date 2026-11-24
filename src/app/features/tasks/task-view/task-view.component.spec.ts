@@ -241,4 +241,82 @@ describe('TaskViewComponent', () => {
 
     expect(repository.data.lists.find(list => list.id === 'l1')?.name).toBe('Casa');
   });
+
+  describe('filtros y orden', () => {
+    function selectOption(selector: string, value: string): void {
+      const select = element.querySelector<HTMLSelectElement>(selector);
+      if (!select) {
+        throw new Error(`No se encontró ${selector}`);
+      }
+      select.value = value;
+      select.dispatchEvent(new Event('change'));
+      fixture.detectChanges();
+    }
+
+    it('filtra los objetivos por estado', () => {
+      const store = TestBed.inject(GoalStore);
+      store.addGoal({ listId: 'l2', title: 'Zeta', priority: 'low' });
+      store.toggleCompleted('g2');
+      fixture.componentRef.setInput('listId', 'l2');
+      fixture.detectChanges();
+
+      selectOption('#filter-status', 'pending');
+
+      expect(renderedItems()).toHaveLength(1);
+      expect(renderedItems()[0]).toContain('Zeta');
+    });
+
+    it('ordena los objetivos por título', () => {
+      const store = TestBed.inject(GoalStore);
+      store.addGoal({ listId: 'l2', title: 'Zeta', priority: 'low' });
+      store.addGoal({ listId: 'l2', title: 'Alfa', priority: 'low' });
+      fixture.componentRef.setInput('listId', 'l2');
+      fixture.detectChanges();
+
+      selectOption('#sort-goals', 'title');
+
+      expect(renderedItems().map(item => item.match(/Alfa|Del trabajo|Zeta/)?.[0])).toEqual([
+        'Alfa',
+        'Del trabajo',
+        'Zeta'
+      ]);
+    });
+
+    it('muestra un mensaje cuando ningún objetivo coincide con los filtros', () => {
+      TestBed.inject(GoalStore).toggleCompleted('g2');
+      fixture.componentRef.setInput('listId', 'l2');
+      fixture.detectChanges();
+
+      selectOption('#filter-status', 'pending');
+
+      expect(element.textContent).toContain('Ningún objetivo coincide con los filtros.');
+    });
+
+    it('limpia los filtros sin cambiar el orden', () => {
+      const store = TestBed.inject(GoalStore);
+      store.addGoal({ listId: 'l2', title: 'Zeta', priority: 'low' });
+      store.toggleCompleted('g2');
+      fixture.componentRef.setInput('listId', 'l2');
+      fixture.detectChanges();
+
+      selectOption('#sort-goals', 'title');
+      selectOption('#filter-status', 'completed');
+      expect(renderedItems()).toHaveLength(1);
+
+      findButton('Limpiar filtros')?.click();
+      fixture.detectChanges();
+
+      expect(element.querySelector<HTMLSelectElement>('#filter-status')?.value).toBe('all');
+      expect(element.querySelector<HTMLSelectElement>('#sort-goals')?.value).toBe('title');
+      expect(renderedItems()).toHaveLength(2);
+      expect(findButton('Limpiar filtros')).toBeUndefined();
+    });
+
+    it('no muestra la barra de filtros si la vista no tiene objetivos', () => {
+      fixture.componentRef.setInput('listId', 'inexistente');
+      fixture.detectChanges();
+
+      expect(element.querySelector('#filter-status')).toBeNull();
+    });
+  });
 });

@@ -33,6 +33,68 @@
     </div>
   </header>
 
+  @if (viewGoals().length > 0) {
+    <div class="mb-4 flex flex-wrap items-end gap-3">
+      <div>
+        <label for="filter-status" class="block text-xs font-medium text-slate-600">Estado</label>
+        <select
+          id="filter-status"
+          (change)="setFilter('status', $any($event.target).value)"
+          class="mt-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+        >
+          @for (option of statusOptions; track option.value) {
+            <option [value]="option.value" [selected]="option.value === filters().status">{{ option.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div>
+        <label for="filter-priority" class="block text-xs font-medium text-slate-600">Prioridad</label>
+        <select
+          id="filter-priority"
+          (change)="setFilter('priority', $any($event.target).value)"
+          class="mt-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+        >
+          @for (option of priorityOptions; track option.value) {
+            <option [value]="option.value" [selected]="option.value === filters().priority">{{ option.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div>
+        <label for="filter-kind" class="block text-xs font-medium text-slate-600">Tipo</label>
+        <select
+          id="filter-kind"
+          (change)="setFilter('kind', $any($event.target).value)"
+          class="mt-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+        >
+          @for (option of kindOptions; track option.value) {
+            <option [value]="option.value" [selected]="option.value === filters().kind">{{ option.label }}</option>
+          }
+        </select>
+      </div>
+
+      <div>
+        <label for="sort-goals" class="block text-xs font-medium text-slate-600">Ordenar por</label>
+        <select
+          id="sort-goals"
+          (change)="setFilter('sort', $any($event.target).value)"
+          class="mt-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+        >
+          @for (option of sortOptions; track option.value) {
+            <option [value]="option.value" [selected]="option.value === filters().sort">{{ option.label }}</option>
+          }
+        </select>
+      </div>
+
+      @if (filtersActive()) {
+        <button type="button" (click)="clearFilters()" class="rounded-lg px-3 py-2 text-sm text-slate-600 hover:bg-slate-100">
+          Limpiar filtros
+        </button>
+      }
+    </div>
+  }
+
   @if (creating()) {
     <div class="mb-4">
       <app-goal-form [defaultListId]="defaultListId()" (submitted)="createGoal($event)" (cancelled)="cancelForm()" />
@@ -41,7 +103,7 @@
 
   @if (goals().length === 0 && mySubtasks().length === 0 && !creating()) {
     <p class="rounded-xl border border-dashed border-slate-300 p-8 text-center text-sm text-slate-500">
-      No hay objetivos en esta vista.
+      {{ viewGoals().length === 0 ? 'No hay objetivos en esta vista.' : 'Ningún objetivo coincide con los filtros.' }}
     </p>
   } @else {
     <ul class="space-y-2">
