@@ -1,4 +1,4 @@
-import { Goal, Subtask } from '../models/goal.model';
+import { Goal, ROUTINE_TARGET_DAYS, Subtask } from '../models/goal.model';
 
 export function todayIso(now: Date = new Date()): string {
   const year = now.getFullYear();
@@ -14,6 +14,9 @@ export function isSubtaskDone(subtask: Subtask): boolean {
 export function getGoalProgress(goal: Goal): number {
   if (goal.completed) {
     return 100;
+  }
+  if (goal.routine) {
+    return Math.min(100, Math.round((goal.routine.count / ROUTINE_TARGET_DAYS) * 100));
   }
   const leaves = collectLeaves(goal.subtasks);
   if (leaves.length === 0) {

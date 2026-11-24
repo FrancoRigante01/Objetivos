@@ -13,6 +13,8 @@ function buildGoal(overrides: Partial<Goal>): Goal {
     priority: 'medium',
     completed: false,
     completedAt: null,
+    kind: 'one-off',
+    routine: null,
     myDayDate: null,
     subtasks: [],
     createdAt: '2026-01-01T00:00:00.000Z',

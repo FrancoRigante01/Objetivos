@@ -49,6 +49,8 @@ describe('LocalStorageGoalRepository', () => {
             priority: 'low',
             completed: false,
             completedAt: null,
+            kind: 'one-off',
+            routine: null,
             myDayDate: null,
             subtasks: [{ id: 's1', title: 'Subtarea', done: false }],
             createdAt: '2026-01-01T00:00:00.000Z'

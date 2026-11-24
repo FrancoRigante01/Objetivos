@@ -1,11 +1,22 @@
 import { Injectable, inject, signal } from '@angular/core';
 
-import { Goal, GoalDraft, GoalList, Priority, Reminder, ReminderDraft, Subtask } from '../models/goal.model';
+import {
+  Goal,
+  GoalDraft,
+  GoalList,
+  Priority,
+  ROUTINE_TARGET_DAYS,
+  Reminder,
+  ReminderDraft,
+  RoutineState,
+  Subtask
+} from '../models/goal.model';
 import { todayIso } from '../utils/goal-progress';
+import { addRoutineCount, createRoutineState, restartRoutine } from '../utils/routine';
 import { addSubtaskToTree, removeSubtaskFromTree, updateSubtaskInTree } from '../utils/subtask-tree';
 import { APP_DATA_VERSION, GoalRepository } from './goal.repository';
 
-export type GoalChanges = Partial<Pick<Goal, 'title' | 'description' | 'dueDate' | 'priority' | 'listId'>>;
+export type GoalChanges = Partial<Pick<Goal, 'title' | 'description' | 'dueDate' | 'priority' | 'listId' | 'kind'>>;
 
 const DEFAULT_LIST_NAME = 'Personal';
 
@@ -63,7 +74,9 @@ export class GoalStore {
       completedAt: null,
       myDayDate: null,
       subtasks: [],
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      kind: draft.kind ?? 'one-off',
+      routine: draft.kind === 'routine' ? createRoutineState() : null
     };
     this.goalsState.update(goals => [...goals, goal]);
     this.persist();
@@ -71,12 +84,17 @@ export class GoalStore {
   }
 
   updateGoal(id: string, changes: GoalChanges): void {
-    this.updateGoalById(id, goal => ({
-      ...goal,
-      ...changes,
-      title: changes.title?.trim() ?? goal.title,
-      description: changes.description?.trim() ?? goal.description
-    }));
+    this.updateGoalById(id, goal => {
+      const kind = changes.kind ?? goal.kind;
+      return {
+        ...goal,
+        ...changes,
+        kind,
+        routine: kind === 'routine' ? (goal.routine ?? createRoutineState()) : null,
+        title: changes.title?.trim() ?? goal.title,
+        description: changes.description?.trim() ?? goal.description
+      };
+    });
   }
 
   removeGoal(id: string): void {
@@ -96,6 +114,24 @@ export class GoalStore {
       ...goal,
       myDayDate: goal.myDayDate === today ? null : today
     }));
+  }
+
+  addRoutineCount(id: string, now: Date = new Date()): void {
+    this.updateActiveRoutine(id, (goal, routine) => {
+      const nowIso = now.toISOString();
+      const updated = addRoutineCount(routine, nowIso);
+      const completed = updated.count >= ROUTINE_TARGET_DAYS;
+      return {
+        ...goal,
+        routine: updated,
+        completed,
+        completedAt: completed ? nowIso : null
+      };
+    });
+  }
+
+  restartRoutine(id: string): void {
+    this.updateActiveRoutine(id, (goal, routine) => ({ ...goal, routine: restartRoutine(routine) }));
   }
 
   setPriority(id: string, priority: Priority): void {
@@ -205,6 +241,10 @@ export class GoalStore {
   private updateGoalById(id: string, update: (goal: Goal) => Goal): void {
     this.goalsState.update(goals => goals.map(goal => (goal.id === id ? update(goal) : goal)));
     this.persist();
+  }
+
+  private updateActiveRoutine(id: string, update: (goal: Goal, routine: RoutineState) => Goal): void {
+    this.updateGoalById(id, goal => (goal.routine && !goal.completed ? update(goal, goal.routine) : goal));
   }
 
   private persist(): void {

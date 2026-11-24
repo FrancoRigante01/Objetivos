@@ -28,6 +28,8 @@ describe('TaskViewComponent', () => {
         priority: 'medium',
         completed: false,
         completedAt: null,
+        kind: 'one-off',
+        routine: null,
         myDayDate: todayIso(),
         subtasks: [],
         createdAt: '2026-01-01T00:00:00.000Z'
@@ -41,6 +43,8 @@ describe('TaskViewComponent', () => {
         priority: 'high',
         completed: false,
         completedAt: null,
+        kind: 'one-off',
+        routine: null,
         myDayDate: null,
         subtasks: [],
         createdAt: '2026-01-01T00:00:00.000Z'

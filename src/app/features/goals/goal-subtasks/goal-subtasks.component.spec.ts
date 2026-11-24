@@ -15,6 +15,8 @@ const GOAL: Goal = {
   priority: 'medium',
   completed: false,
   completedAt: null,
+  kind: 'one-off',
+  routine: null,
   myDayDate: null,
   subtasks: [{ id: 's1', title: 'Aumento de sueldo', done: false, subtasks: [] }],
   createdAt: '2026-01-01T00:00:00.000Z'

@@ -12,12 +12,13 @@ import {
   SmartListKey
 } from '../../../core/utils/smart-lists';
 import { GoalFormComponent } from '../../goals/goal-form/goal-form.component';
+import { GoalRoutineComponent } from '../../goals/goal-routine/goal-routine.component';
 import { GoalSubtasksComponent } from '../../goals/goal-subtasks/goal-subtasks.component';
 import { ListNameFormComponent } from '../../lists/list-name-form/list-name-form.component';
 
 @Component({
   selector: 'app-task-view',
-  imports: [GoalFormComponent, GoalSubtasksComponent, ListNameFormComponent],
+  imports: [GoalFormComponent, GoalSubtasksComponent, GoalRoutineComponent, ListNameFormComponent],
   templateUrl: './task-view.component.html'
 })
 export class TaskViewComponent {

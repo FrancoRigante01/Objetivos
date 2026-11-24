@@ -149,6 +149,80 @@ describe('GoalStore', () => {
     expect(repository.data.lists.map(list => list.name)).toEqual(['Importada']);
   });
 
+  it('crea una rutina con racha en cero y sin fecha estimada', () => {
+    const goal = store.addGoal({ listId: store.lists()[0].id, title: 'Mantener postura', kind: 'routine' });
+
+    expect(goal.kind).toBe('routine');
+    expect(goal.routine).toEqual({ count: 0, bestCount: 0, lastCountedAt: null });
+  });
+
+  it('suma días a la racha y guarda la fecha de la última anotación', () => {
+    const goal = store.addGoal({ listId: store.lists()[0].id, title: 'Postura', kind: 'routine' });
+
+    store.addRoutineCount(goal.id, new Date(2026, 2, 10, 18, 0));
+    store.addRoutineCount(goal.id, new Date(2026, 2, 8, 9, 0));
+
+    expect(store.goals()[0].routine).toEqual({
+      count: 2,
+      bestCount: 2,
+      lastCountedAt: new Date(2026, 2, 8, 9, 0).toISOString()
+    });
+  });
+
+  it('completa la rutina al llegar a 90 días y no admite más anotaciones', () => {
+    const goal = store.addGoal({ listId: store.lists()[0].id, title: 'Postura', kind: 'routine' });
+    const now = new Date(2026, 2, 10, 18, 0);
+    for (let day = 0; day < 90; day++) {
+      store.addRoutineCount(goal.id, now);
+    }
+
+    expect(store.goals()[0].completed).toBe(true);
+    expect(store.goals()[0].completedAt).toBe(now.toISOString());
+    expect(store.goals()[0].routine?.count).toBe(90);
+
+    store.addRoutineCount(goal.id, now);
+    store.restartRoutine(goal.id);
+    expect(store.goals()[0].routine?.count).toBe(90);
+  });
+
+  it('reinicia la racha conservando la mejor marca', () => {
+    const goal = store.addGoal({ listId: store.lists()[0].id, title: 'Postura', kind: 'routine' });
+    store.addRoutineCount(goal.id);
+    store.addRoutineCount(goal.id);
+    store.addRoutineCount(goal.id);
+
+    store.restartRoutine(goal.id);
+
+    expect(store.goals()[0].routine?.count).toBe(0);
+    expect(store.goals()[0].routine?.bestCount).toBe(3);
+  });
+
+  it('cambia el tipo de un objetivo al editarlo', () => {
+    const goal = store.addGoal({ listId: store.lists()[0].id, title: 'Leer' });
+
+    store.updateGoal(goal.id, { kind: 'routine' });
+    expect(store.goals()[0].kind).toBe('routine');
+    expect(store.goals()[0].routine).toEqual({ count: 0, bestCount: 0, lastCountedAt: null });
+
+    store.addRoutineCount(goal.id);
+    store.updateGoal(goal.id, { title: 'Leer más', kind: 'routine' });
+    expect(store.goals()[0].routine?.count).toBe(1);
+
+    store.updateGoal(goal.id, { kind: 'one-off' });
+    expect(store.goals()[0].kind).toBe('one-off');
+    expect(store.goals()[0].routine).toBeNull();
+  });
+
+  it('ignora las acciones de rutina sobre un objetivo puntual', () => {
+    const goal = store.addGoal({ listId: store.lists()[0].id, title: 'Leer' });
+
+    store.addRoutineCount(goal.id);
+    store.restartRoutine(goal.id);
+
+    expect(store.goals()[0].kind).toBe('one-off');
+    expect(store.goals()[0].routine).toBeNull();
+  });
+
   it('crea una lista por defecto si la importación no trae ninguna', () => {
     store.replaceAll({ lists: [], goals: [], reminders: [] });
 

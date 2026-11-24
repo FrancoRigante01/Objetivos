@@ -14,6 +14,8 @@ function buildGoal(overrides: Partial<Goal> = {}): Goal {
     myDayDate: null,
     subtasks: [],
     createdAt: '2026-01-01T00:00:00.000Z',
+    kind: 'one-off',
+    routine: null,
     ...overrides
   };
 }
@@ -29,6 +31,11 @@ describe('getGoalProgress', () => {
 
   it('devuelve 100 cuando el objetivo está completado', () => {
     expect(getGoalProgress(buildGoal({ completed: true }))).toBe(100);
+  });
+
+  it('calcula el progreso de una rutina según su racha sobre 90 días', () => {
+    const routine = { count: 45, bestCount: 45, lastCountedAt: null };
+    expect(getGoalProgress(buildGoal({ kind: 'routine', routine }))).toBe(50);
   });
 
   it('calcula el porcentaje según las subtareas sin hijas', () => {

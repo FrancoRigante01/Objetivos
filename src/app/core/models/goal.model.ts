@@ -22,6 +22,16 @@ export interface GoalList {
   createdAt: string;
 }
 
+export type GoalKind = 'one-off' | 'routine';
+
+export const ROUTINE_TARGET_DAYS = 90;
+
+export interface RoutineState {
+  count: number;
+  bestCount: number;
+  lastCountedAt: string | null;
+}
+
 export interface Goal {
   id: string;
   listId: string;
@@ -34,6 +44,8 @@ export interface Goal {
   myDayDate: string | null;
   subtasks: Subtask[];
   createdAt: string;
+  kind: GoalKind;
+  routine: RoutineState | null;
 }
 
 export interface GoalDraft {
@@ -42,6 +54,7 @@ export interface GoalDraft {
   description?: string;
   dueDate?: string | null;
   priority?: Priority;
+  kind?: GoalKind;
 }
 
 export interface Reminder {

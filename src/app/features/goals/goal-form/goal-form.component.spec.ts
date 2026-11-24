@@ -16,7 +16,9 @@ const EXISTING_GOAL: Goal = {
   completedAt: null,
   myDayDate: null,
   subtasks: [],
-  createdAt: '2026-01-01T00:00:00.000Z'
+  createdAt: '2026-01-01T00:00:00.000Z',
+  kind: 'one-off',
+  routine: null
 };
 
 describe('GoalFormComponent', () => {
@@ -71,8 +73,23 @@ describe('GoalFormComponent', () => {
       title: 'Leer 12 libros',
       description: '',
       dueDate: null,
-      priority: 'medium'
+      priority: 'medium',
+      kind: 'one-off'
     });
+  });
+
+  it('emite una rutina sin fecha estimada', () => {
+    const fixture = createForm();
+    const spy = vi.fn();
+    fixture.componentInstance.submitted.subscribe(spy);
+
+    setValue('#goal-title', 'Mantener postura');
+    setValue('#goal-kind', 'routine');
+    fixture.detectChanges();
+    expect(element.querySelector('#goal-due-date')).toBeNull();
+    submit(fixture);
+
+    expect(spy).toHaveBeenCalledWith(expect.objectContaining({ title: 'Mantener postura', dueDate: null, kind: 'routine' }));
   });
 
   it('no emite cuando el título está vacío', () => {
@@ -87,9 +104,21 @@ describe('GoalFormComponent', () => {
     expect(element.textContent).toContain('El título es obligatorio.');
   });
 
+  it('permite cambiar el tipo al editar', () => {
+    const fixture = createForm(EXISTING_GOAL);
+    const spy = vi.fn();
+    fixture.componentInstance.submitted.subscribe(spy);
+
+    setValue('#goal-kind', 'routine');
+    submit(fixture);
+
+    expect(spy).toHaveBeenCalledWith(expect.objectContaining({ kind: 'routine', dueDate: null }));
+  });
+
   it('rellena el formulario con los datos del objetivo al editar', () => {
     createForm(EXISTING_GOAL);
 
+    expect(element.querySelector<HTMLSelectElement>('#goal-kind')?.value).toBe('one-off');
     expect(element.querySelector<HTMLInputElement>('#goal-title')?.value).toBe('Existente');
     expect(element.querySelector<HTMLInputElement>('#goal-due-date')?.value).toBe('2026-06-01');
     expect(element.querySelector<HTMLSelectElement>('#goal-priority')?.value).toBe('high');

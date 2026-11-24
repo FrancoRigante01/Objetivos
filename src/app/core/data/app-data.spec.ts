@@ -32,7 +32,9 @@ const DATA: AppData = {
           ]
         }
       ],
-      createdAt: '2026-01-01T00:00:00.000Z'
+      createdAt: '2026-01-01T00:00:00.000Z',
+      kind: 'one-off',
+      routine: null
     }
   ],
   reminders: [
@@ -57,6 +59,25 @@ describe('app-data', () => {
     const data = parseAppData(JSON.stringify(legacy));
 
     expect(data).toEqual({ version: APP_DATA_VERSION, lists: DATA.lists, goals: DATA.goals, reminders: [] });
+  });
+
+  it('migra copias de la versión 4 marcando los objetivos existentes como puntuales', () => {
+    const { kind, routine, ...goalWithoutRoutine } = DATA.goals[0];
+    const legacy = { version: 4, lists: DATA.lists, goals: [goalWithoutRoutine], reminders: DATA.reminders };
+
+    const data = parseAppData(JSON.stringify(legacy));
+
+    expect(kind).toBe('one-off');
+    expect(routine).toBeNull();
+    expect(data).toEqual(DATA);
+  });
+
+  it('rechaza rutinas con una racha inválida', () => {
+    const broken = structuredClone(DATA);
+    const goal = broken.goals[0] as unknown as Record<string, unknown>;
+    goal['kind'] = 'routine';
+    goal['routine'] = { count: 'x', bestCount: 0, lastCountedAt: null };
+    expect(() => parseAppData(JSON.stringify(broken))).toThrowError(INVALID);
   });
 
   it('rechaza texto que no es JSON', () => {

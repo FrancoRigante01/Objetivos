@@ -1,6 +1,10 @@
-import { Goal, GoalList, Priority, Reminder, Subtask } from '../models/goal.model';
+import { Goal, GoalKind, GoalList, Priority, Reminder, RoutineState, Subtask } from '../models/goal.model';
 
-export const APP_DATA_VERSION = 4;
+export const APP_DATA_VERSION = 5;
+
+type LegacyGoal = Omit<Goal, 'kind' | 'routine'>;
+
+const GOAL_KINDS: GoalKind[] = ['one-off', 'routine'];
 
 export interface AppData {
   version: number;
@@ -43,7 +47,14 @@ interface AppDataV2 {
 interface AppDataV3 {
   version: 3;
   lists: GoalList[];
-  goals: Goal[];
+  goals: LegacyGoal[];
+}
+
+interface AppDataV4 {
+  version: 4;
+  lists: GoalList[];
+  goals: LegacyGoal[];
+  reminders: Reminder[];
 }
 
 export function serializeAppData(data: AppData): string {
@@ -65,11 +76,13 @@ export function parseAppData(text: string): AppData {
 function upgradeToCurrent(raw: Record<string, unknown>): unknown {
   switch (raw['version']) {
     case 1:
-      return migrateV3ToV4(migrateV2ToV3(migrateV1ToV2(raw as unknown as AppDataV1)));
+      return migrateV4ToV5(migrateV3ToV4(migrateV2ToV3(migrateV1ToV2(raw as unknown as AppDataV1))));
     case 2:
-      return migrateV3ToV4(migrateV2ToV3(raw as unknown as AppDataV2));
+      return migrateV4ToV5(migrateV3ToV4(migrateV2ToV3(raw as unknown as AppDataV2)));
     case 3:
-      return migrateV3ToV4(raw as unknown as AppDataV3);
+      return migrateV4ToV5(migrateV3ToV4(raw as unknown as AppDataV3));
+    case 4:
+      return migrateV4ToV5(raw as unknown as AppDataV4);
     default:
       return raw;
   }
@@ -97,8 +110,17 @@ function migrateV2ToV3(data: AppDataV2): AppDataV3 {
   };
 }
 
-function migrateV3ToV4(data: AppDataV3): AppData {
-  return { version: APP_DATA_VERSION, lists: data.lists, goals: data.goals, reminders: [] };
+function migrateV3ToV4(data: AppDataV3): AppDataV4 {
+  return { version: 4, lists: data.lists, goals: data.goals, reminders: [] };
+}
+
+function migrateV4ToV5(data: AppDataV4): AppData {
+  return {
+    version: APP_DATA_VERSION,
+    lists: data.lists,
+    goals: data.goals.map(goal => ({ ...goal, kind: 'one-off' as const, routine: null })),
+    reminders: data.reminders
+  };
 }
 
 function subtaskV2ToV3(subtask: SubtaskV2): Subtask {
@@ -152,7 +174,18 @@ function isGoal(value: unknown): value is Goal {
     isNullableString(value['myDayDate']) &&
     isString(value['createdAt']) &&
     Array.isArray(value['subtasks']) &&
-    value['subtasks'].every(isSubtask)
+    value['subtasks'].every(isSubtask) &&
+    GOAL_KINDS.includes(value['kind'] as GoalKind) &&
+    (value['routine'] === null || isRoutineState(value['routine']))
+  );
+}
+
+function isRoutineState(value: unknown): value is RoutineState {
+  return (
+    isRecord(value) &&
+    typeof value['count'] === 'number' &&
+    typeof value['bestCount'] === 'number' &&
+    isNullableString(value['lastCountedAt'])
   );
 }
 

@@ -3,10 +3,14 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 
 import { GoalStore } from '../../../core/data/goal.store';
 import { notBlank } from '../../../core/forms/validators';
-import { Goal, GoalDraft, PRIORITY_LABELS, Priority } from '../../../core/models/goal.model';
+import { Goal, GoalDraft, GoalKind, PRIORITY_LABELS, Priority } from '../../../core/models/goal.model';
 
 const TITLE_MAX_LENGTH = 120;
 const DESCRIPTION_MAX_LENGTH = 500;
+const KIND_LABELS: Record<GoalKind, string> = {
+  'one-off': 'Puntual',
+  routine: 'Rutina (racha de días)'
+};
 
 @Component({
   selector: 'app-goal-form',
@@ -28,6 +32,11 @@ export class GoalFormComponent implements OnInit, AfterViewInit {
     label: PRIORITY_LABELS[value]
   }));
 
+  protected readonly kindOptions = (['one-off', 'routine'] as GoalKind[]).map(value => ({
+    value,
+    label: KIND_LABELS[value]
+  }));
+
   protected readonly form = new FormGroup({
     title: new FormControl('', {
       nonNullable: true,
@@ -38,6 +47,7 @@ export class GoalFormComponent implements OnInit, AfterViewInit {
       validators: [Validators.maxLength(DESCRIPTION_MAX_LENGTH)]
     }),
     listId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    kind: new FormControl<GoalKind>('one-off', { nonNullable: true }),
     dueDate: new FormControl('', { nonNullable: true }),
     priority: new FormControl<Priority>('medium', { nonNullable: true })
   });
@@ -57,9 +67,14 @@ export class GoalFormComponent implements OnInit, AfterViewInit {
       title: goal?.title ?? '',
       description: goal?.description ?? '',
       listId: goal?.listId ?? this.defaultListId(),
+      kind: goal?.kind ?? 'one-off',
       dueDate: goal?.dueDate ?? '',
       priority: goal?.priority ?? 'medium'
     });
+  }
+
+  protected isRoutine(): boolean {
+    return this.form.controls.kind.value === 'routine';
   }
 
   protected titleError(): string {
@@ -78,8 +93,9 @@ export class GoalFormComponent implements OnInit, AfterViewInit {
       listId: value.listId,
       title: value.title.trim(),
       description: value.description.trim(),
-      dueDate: value.dueDate || null,
-      priority: value.priority
+      dueDate: value.kind === 'routine' ? null : value.dueDate || null,
+      priority: value.priority,
+      kind: value.kind
     });
   }
 }

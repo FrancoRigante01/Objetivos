@@ -28,6 +28,19 @@
     ></textarea>
   </div>
 
+  <div>
+    <label for="goal-kind" class="block text-sm font-medium text-slate-700">Tipo</label>
+    <select
+      id="goal-kind"
+      formControlName="kind"
+      class="mt-1 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+    >
+      @for (option of kindOptions; track option.value) {
+        <option [value]="option.value">{{ option.label }}</option>
+      }
+    </select>
+  </div>
+
   <div class="grid gap-4 sm:grid-cols-3">
     <div>
       <label for="goal-list" class="block text-sm font-medium text-slate-700">Lista</label>
@@ -42,15 +55,17 @@
       </select>
     </div>
 
-    <div>
-      <label for="goal-due-date" class="block text-sm font-medium text-slate-700">Fecha estimada</label>
-      <input
-        id="goal-due-date"
-        type="date"
-        formControlName="dueDate"
-        class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
-      />
-    </div>
+    @if (!isRoutine()) {
+      <div>
+        <label for="goal-due-date" class="block text-sm font-medium text-slate-700">Fecha estimada</label>
+        <input
+          id="goal-due-date"
+          type="date"
+          formControlName="dueDate"
+          class="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-emerald-500 focus:outline-none"
+        />
+      </div>
+    }
 
     <div>
       <label for="goal-priority" class="block text-sm font-medium text-slate-700">Prioridad</label>
