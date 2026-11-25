@@ -8,7 +8,7 @@ Aplicación web para organizar objetivos, tareas y recordatorios personales. Est
 - **Objetivos**: título, descripción, fecha límite y prioridad (baja, media o alta).
 - **Subtareas**: árboles anidados de subtareas, con opción de colapsarlas. Se pueden marcar para Mi día.
 - **Listas propias**: crear listas y asignarles objetivos.
-- **Recordatorios**: avisos con fecha y hora, con su propia sección.
+- **Recordatorios**: lista de recordatorios con fecha y hora, con su propia sección. Los vencidos se marcan en la lista.
 - **Datos**: exportar e importar la información en un archivo.
 
 ## Requisitos
