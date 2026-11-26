@@ -1,6 +1,7 @@
 import { Component, Injector, afterNextRender, computed, effect, inject, input, signal } from '@angular/core';
 import { Router } from '@angular/router';
 
+import { ClockService } from '../../../core/clock/clock.service';
 import { GoalStore } from '../../../core/data/goal.store';
 import { Goal, GoalDraft, GoalKind, KIND_LABELS, PRIORITY_LABELS, Priority, Subtask } from '../../../core/models/goal.model';
 import {
@@ -12,7 +13,7 @@ import {
   hasActiveGoalFilters,
   SORT_LABELS
 } from '../../../core/utils/goal-filters';
-import { getGoalProgress, todayIso } from '../../../core/utils/goal-progress';
+import { getGoalProgress } from '../../../core/utils/goal-progress';
 import {
   filterBySmartList,
   getMyDaySubtasks,
@@ -40,7 +41,7 @@ export class TaskViewComponent {
 
   private readonly injector = inject(Injector);
 
-  protected readonly today = todayIso();
+  protected readonly today = inject(ClockService).today;
   protected readonly priorityLabels = PRIORITY_LABELS;
   protected readonly priorityClasses: Record<Priority, string> = {
     low: 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300',
@@ -104,7 +105,7 @@ export class TaskViewComponent {
   protected readonly viewGoals = computed<Goal[]>(() => {
     const key = this.smartList();
     if (key) {
-      return filterBySmartList(this.store.goals(), key, this.today);
+      return filterBySmartList(this.store.goals(), key, this.today());
     }
     return this.store.goals().filter(goal => goal.listId === this.listId());
   });
@@ -112,7 +113,7 @@ export class TaskViewComponent {
   protected readonly goals = computed<Goal[]>(() => applyGoalFilters(this.viewGoals(), this.filters()));
 
   protected readonly mySubtasks = computed<MyDaySubtask[]>(() =>
-    this.smartList() === 'myDay' ? getMyDaySubtasks(this.store.goals(), this.today) : []
+    this.smartList() === 'myDay' ? getMyDaySubtasks(this.store.goals(), this.today()) : []
   );
 
   protected readonly pendingCount = computed(
@@ -126,15 +127,15 @@ export class TaskViewComponent {
   }
 
   protected isDoneToday(subtask: Subtask): boolean {
-    return subtask.myDayDoneDate === this.today;
+    return subtask.myDayDoneDate === this.today();
   }
 
   protected isInMyDay(goal: Goal): boolean {
-    return goal.myDayDate === this.today;
+    return goal.myDayDate === this.today();
   }
 
   protected isOverdue(goal: Goal): boolean {
-    return !goal.completed && goal.dueDate !== null && goal.dueDate < this.today;
+    return !goal.completed && goal.dueDate !== null && goal.dueDate < this.today();
   }
 
   protected formatDate(isoDate: string): string {

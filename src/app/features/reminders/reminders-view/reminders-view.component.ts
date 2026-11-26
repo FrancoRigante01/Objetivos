@@ -1,8 +1,9 @@
 import { Component, computed, inject, signal } from '@angular/core';
 
+import { ClockService } from '../../../core/clock/clock.service';
 import { GoalStore } from '../../../core/data/goal.store';
 import { Reminder, ReminderDraft } from '../../../core/models/goal.model';
-import { isReminderOverdue, localDateTimeIso, sortReminders, countPendingReminders } from '../../../core/utils/reminders';
+import { isReminderOverdue, sortReminders, countPendingReminders } from '../../../core/utils/reminders';
 import { ReminderFormComponent } from '../reminder-form/reminder-form.component';
 
 @Component({
@@ -13,7 +14,7 @@ import { ReminderFormComponent } from '../reminder-form/reminder-form.component'
 export class RemindersViewComponent {
   protected readonly store = inject(GoalStore);
 
-  protected readonly now = localDateTimeIso();
+  protected readonly now = inject(ClockService).nowIso;
 
   protected readonly creating = signal(false);
   protected readonly editingReminderId = signal<string | null>(null);
@@ -22,7 +23,7 @@ export class RemindersViewComponent {
   protected readonly pendingCount = computed(() => countPendingReminders(this.store.reminders()));
 
   protected isOverdue(reminder: Reminder): boolean {
-    return isReminderOverdue(reminder, this.now);
+    return isReminderOverdue(reminder, this.now());
   }
 
   protected formatRemindAt(remindAt: string): string {
