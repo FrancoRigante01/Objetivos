@@ -26,7 +26,10 @@ describe('GoalFormComponent', () => {
 
   beforeEach(() => {
     const repository = new InMemoryGoalRepository();
-    repository.data.lists = [{ id: 'l1', name: 'Personal', createdAt: '2026-01-01T00:00:00.000Z' }];
+    repository.data.lists = [
+      { id: 'l1', name: 'Personal', createdAt: '2026-01-01T00:00:00.000Z' },
+      { id: 'l2', name: 'Trabajo', createdAt: '2026-01-01T00:00:00.000Z' }
+    ];
 
     TestBed.configureTestingModule({
       imports: [GoalFormComponent],
@@ -122,5 +125,11 @@ describe('GoalFormComponent', () => {
     expect(element.querySelector<HTMLInputElement>('#goal-title')?.value).toBe('Existente');
     expect(element.querySelector<HTMLInputElement>('#goal-due-date')?.value).toBe('2026-06-01');
     expect(element.querySelector<HTMLSelectElement>('#goal-priority')?.value).toBe('high');
+  });
+
+  it('muestra la lista del objetivo al editar', () => {
+    createForm({ ...EXISTING_GOAL, listId: 'l2' });
+
+    expect(element.querySelector<HTMLSelectElement>('#goal-list')?.value).toBe('l2');
   });
 });
