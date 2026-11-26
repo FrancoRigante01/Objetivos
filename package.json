@@ -1,6 +1,7 @@
 {
   "name": "objetivos",
   "version": "0.0.0",
+  "description": "Aplicación web para organizar objetivos, tareas y recordatorios personales, con Angular y datos en localStorage.",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

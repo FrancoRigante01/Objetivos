@@ -32,6 +32,15 @@ npm start
 
 Después abrí `http://localhost:4200/`
 
+## Tests y build
+
+```bash
+npm test
+npm run build
+```
+
+Los tests usan Vitest a través del builder de Angular. Para correrlos una sola vez, sin modo watch: `npm test -- --watch=false`.
+
 ## Decisiones de diseño
 
 ### Sin backend, datos en el navegador
